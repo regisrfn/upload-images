@@ -8,6 +8,7 @@ require('dotenv').config()
 var http = require('http')
 var server = http.createServer(app)
 
+const cloudinary = require('./cloudinary/config.js')
 const storage = require('./storage/multer.js')
 app.use(morgan('combined'))
 app.use(bodyParser.json({ limit: '100mb' }))
@@ -25,12 +26,22 @@ app.get('/', function (req, res) {
 
 // UPLOAD IMAGE
 app.post('/uptocloudinary', storage.single('image'), function(req,res){
-    console.log(req.file)
-
-    return res.status(200).json({
-        status: true,
-        message: 'OK'
+    
+    cloudinary.v2.uploader.upload(req.file.path)
+    .then( (result) => {
+        return res.status(200).json({
+            status: true,
+            message: 'OK',
+            image: result
+        })
     })
+    .catch( error => {
+        console.log(error)
+        return res.status(500).json({
+            status: false,
+        })
+    })
+    
 })
 
 
