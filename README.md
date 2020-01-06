@@ -1,4 +1,4 @@
-# Project Title
+# UPLOAD images
 
 API to upload images - Using nodejs with expressjs
 
@@ -6,4 +6,6 @@ API to upload images - Using nodejs with expressjs
 
 The images have been uploaded to cloudinary
 
-### Prerequisites
+### Heroku
+The app is deploying using heroku
+https://rufino-upload-images.herokuapp.com/
