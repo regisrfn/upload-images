@@ -27,7 +27,7 @@ app.get('/', function (req, res) {
 // UPLOAD IMAGE
 app.post('/uptocloudinary', storage.single('image'), function(req,res){
     
-    cloudinary.v2.uploader.upload(req.file.path)
+    cloudinary.v2.uploader.upload(req.file.path, {folder: "handwriting_app/"})
     .then( (result) => {
         return res.status(200).json({
             status: true,
