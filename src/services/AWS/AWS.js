@@ -10,13 +10,16 @@ var AWS = require('aws-sdk')
 //       console.log("Secret access key:", AWS.config.credentials.secretAccessKey);
 //     }
 //   });
-var s3 = new AWS.S3({region: process.env.AWS_REGION})
-// // Call S3 to list the buckets
-// s3.listBuckets(function(err, data) {
-//     if (err) {
-//       console.log("Error", err);
-//     } else {
-//       console.log("Success", data.Buckets);
-//     }
-//   });
-module.exports = {s3}
+const uploadDocument = async (document) => {
+    const s3 = new AWS.S3({region: process.env.AWS_REGION})
+    const params = {
+        Bucket: process.env.AWS_BUCKET,
+        Key: `text-recognition/test-image`,
+        Body: document.file,
+        ACL:'public-read',
+        ContentType:document.content
+    }
+  
+    return s3.upload(params).promise()
+  }
+module.exports = {uploadDocument}

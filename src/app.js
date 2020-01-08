@@ -11,7 +11,7 @@ var server = http.createServer(app)
 
 const cloudinary = require('./cloudinary/config.js')
 const storage = require('./storage/multer.js')
-const s3 = require('./services/AWS/AWS.js').s3
+const s3 = require('./services/AWS/AWS.js')
 app.use(morgan('combined'))
 app.use(bodyParser.json({ limit: '100mb' }))
 app.use(cors())
@@ -48,32 +48,24 @@ app.post('/uptocloudinary', storage.single('image'), function (req, res) {
 
 // UPLOAD IMAGE to aws-s3
 app.post('/uptos3', storage.single('image'), function (req, res) {
-    var buffer = fs.readFileSync(req.file.path)
-    var params = {
-        Bucket: process.env.AWS_BUCKET,
-        Key: `text-recognition/test-image`,
-        Body: buffer,
-        ACL:'public-read',
-        ContentType:req.file.mimetype
-    };
-
-
-    s3.upload(params, function (err, data) {
-        if (err) {
+    var document = {
+        file: fs.readFileSync(req.file.path),
+        content: req.file.mimetype
+    }
+    s3.uploadDocument(document)
+        .then(result => {
+            console.log(result)
+            return res.status(200).json({
+                status: true,
+                message: 'OK'
+            })
+        })
+        .catch(error => {
             console.log(error)
             return res.status(500).json({
                 status: false,
-            })   
-        }
-        else{
-            console.log(data)
-            return res.status(200).json({
-                status: true,
-                message: 'OK',
             })
-        }
-    });
-
+        })
 })
 
 
