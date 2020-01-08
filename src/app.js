@@ -11,7 +11,9 @@ var server = http.createServer(app)
 
 const cloudinary = require('./cloudinary/config.js')
 const storage = require('./storage/multer.js')
-const s3 = require('./services/AWS/AWS.js')
+const AWS = require('./services/AWS/AWS.js')
+
+
 app.use(morgan('combined'))
 app.use(bodyParser.json({ limit: '100mb' }))
 app.use(cors())
@@ -49,10 +51,11 @@ app.post('/uptocloudinary', storage.single('image'), function (req, res) {
 // UPLOAD IMAGE to aws-s3
 app.post('/uptos3', storage.single('image'), function (req, res) {
     var document = {
+        // read binary data
         file: fs.readFileSync(req.file.path),
         content: req.file.mimetype
     }
-    s3.uploadDocument(document)
+    AWS.uploadDocument(document)
         .then(result => {
             console.log(result)
             return res.status(200).json({
@@ -68,7 +71,28 @@ app.post('/uptos3', storage.single('image'), function (req, res) {
         })
 })
 
+app.post('/aws/textract', storage.single('image'), function (req, res) {
+    var document = {
+        // read binary data
+        file: fs.readFileSync(req.file.path)
+    }
+    AWS.analyzeDocument(document)
+        .then(result => {
+            console.log(result)
+            return res.status(200).json({
+                status: true,
+                message: 'OK',
+                image: result
+            })
+        })
+        .catch(error => {
+            console.log(error)
+            return res.status(500).json({
+                status: false,
+            })
+        })
 
+})
 server.listen(process.env.PORT || 8081, function () {
     console.log('SERVER IS RUNNING');
 })

@@ -22,4 +22,20 @@ const uploadDocument = async (document) => {
   
     return s3.upload(params).promise()
   }
-module.exports = {uploadDocument}
+
+  const analyzeDocument = async (document) => {
+    const client = new AWS.Textract({region: process.env.AWS_REGION_US})
+    const params = {
+      Document: {
+        Bytes: document.file
+      },
+      FeatureTypes: [
+        "TABLES",
+      ]
+    };
+  
+    return client.analyzeDocument(params).promise()
+  }
+
+
+module.exports = {uploadDocument, analyzeDocument}
