@@ -12,6 +12,7 @@ var server = http.createServer(app)
 const cloudinary = require('./cloudinary/config.js')
 const storage = require('./storage/multer.js')
 const AWS = require('./services/AWS/AWS.js')
+const write_table = require('./services/write_csv/write_csv.js')
 
 
 app.use(morgan('combined'))
@@ -78,7 +79,8 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
     }
     AWS.analyzeDocument(document)
         .then(result => {
-            console.log(result)
+            // console.log(result)
+            write_table.writeCSV(result)
             return res.status(200).json({
                 status: true,
                 message: 'OK',
