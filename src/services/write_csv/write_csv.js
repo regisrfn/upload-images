@@ -20,6 +20,7 @@ function writeTable(table, separator) {
 
 
 const writeCSV = (data) => {
+    fs.writeFileSync(`${__dirname}/table.csv`, "")
     var blocks = data['Blocks']
     var tables = filterByKey(blocks, "BlockType", "TABLE")
     var cells = filterByKey(blocks, "BlockType", "CELL")
