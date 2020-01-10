@@ -80,9 +80,12 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
     AWS.analyzeDocument(document)
         .then(result => {
             // console.log(result)
-            write_table.writeCSV(result)
+            tables = write_table.writeCSV(result)
             const file = `${__dirname}/services/write_csv/table.csv`
             res.download(file)
+            // return res.status(200).json({
+            //     result
+            // })
         })
         .catch(error => {
             console.log(error)
