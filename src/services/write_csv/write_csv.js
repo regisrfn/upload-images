@@ -16,10 +16,12 @@ function writeTable(table, separator) {
         var new_row = row.join(separator)
         csv_content += `${row}\r\n`
     })
-    fs.writeFile('table.csv', csv_content, (err) => {
-        if (err) throw err;
+    try {
+        fs.writeFileSync(`${__dirname}/table.csv`, csv_content)
         console.log('The file has been saved!');
-    });
+    } catch (error) {
+        throw error
+    }
 }
 
 
