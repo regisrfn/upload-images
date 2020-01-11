@@ -81,11 +81,11 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
         .then(result => {
             // console.log(result)
             tables = write_table.writeCSV(result)
-            const file = `${__dirname}/services/write_csv/table.csv`
-            res.download(file)
-            // return res.status(200).json({
-            //     result
-            // })
+            // const file = `${__dirname}/services/write_csv/tables/table_0.csv`
+            // res.download(file)
+            return res.status(200).json({
+                 status: true
+            })
         })
         .catch(error => {
             console.log(error)

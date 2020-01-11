@@ -4,14 +4,14 @@ function filterByKey(blocks, key, value) {
     return blocks.filter(block => block[key] == value)
 }
 
-function writeTable(table, separator) {
+function writeTable(table, table_name) {
     var csv_content = ""
     table.forEach(row => {
-        var new_row = row.join(separator)
-        csv_content += `${row}\r\n`
+        var new_row = row.join()
+        csv_content += `${new_row}\r\n`
     })
     try {
-        fs.appendFileSync(`${__dirname}/table.csv`, csv_content)
+        fs.writeFileSync(table_name, csv_content)
         console.log('The file has been saved!');
     } catch (error) {
         throw error
@@ -20,14 +20,13 @@ function writeTable(table, separator) {
 
 
 const writeCSV = (data) => {
-    fs.writeFileSync(`${__dirname}/table.csv`, "")
     var blocks = data['Blocks']
     var tables = filterByKey(blocks, "BlockType", "TABLE")
     var cells = filterByKey(blocks, "BlockType", "CELL")
     var words = filterByKey(blocks, "BlockType", "WORD")
 
     
-    tables.forEach(element => {
+    tables.forEach((element,index) => {
         var table = []
         var table_cells = []
         var table_children = element.Relationships
@@ -53,7 +52,7 @@ const writeCSV = (data) => {
             }
             table[cell.RowIndex - 1][cell.ColumnIndex - 1] = text
         })
-        writeTable(table)
+        writeTable(table, `${__dirname}/tables/table_${index}.csv`)
     })
 }
 
