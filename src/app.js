@@ -4,6 +4,7 @@ const cors = require('cors')
 const morgan = require('morgan')
 const app = express()
 const fs = require('fs')
+var zipdir = require('zip-dir');
 require('dotenv').config()
 
 var http = require('http')
@@ -79,13 +80,19 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
     }
     AWS.analyzeDocument(document)
         .then(result => {
-            // console.log(result)
+            const file = `${__dirname}/table.zip`
             tables = write_table.writeCSV(result)
-            // const file = `${__dirname}/services/write_csv/tables/table_0.csv`
-            // res.download(file)
-            return res.status(200).json({
-                 status: true
-            })
+            zipdir(`${__dirname}/services/write_csv/tables`,
+                { saveTo: file },
+                function (error) {
+                    if (error) {
+                        console.log(error)
+                        return res.status(500).json({
+                            status: false,
+                        })
+                    }
+                    res.status(200).download(file)
+                })
         })
         .catch(error => {
             console.log(error)
