@@ -7,6 +7,8 @@ yarn-error.log*
 /test/unit/coverage/
 /test/e2e/reports/
 selenium-debug.log
+.env
+*.csv
 
 # Editor directories and files
 .idea
@@ -15,4 +17,3 @@ selenium-debug.log
 *.ntvs*
 *.njsproj
 *.sln
-.env
