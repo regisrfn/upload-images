@@ -84,7 +84,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
     }
     AWS.analyzeDocument(document)
         .then(result => {
-            const file = `${__dirname}/table.zip`
+            const file = `${__dirname}/temp/table.zip`
             tables = write_table.writeCSV(result)
             zipdir(`${__dirname}/services/write_csv/tables`,
                 { saveTo: file },

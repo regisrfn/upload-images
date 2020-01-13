@@ -9,7 +9,7 @@ yarn-error.log*
 selenium-debug.log
 .env
 *.csv
-src/table.zip
+temp/*
 
 # Editor directories and files
 .idea
