@@ -75,6 +75,9 @@ app.post('/uptos3', storage.single('image'), function (req, res) {
 })
 
 app.post('/aws/textract', storage.single('image'), function (req, res) {
+    
+    const file_type = req.file.mimetype.split('/').pop()
+    console.log(file_type)
     var document = {
         // read binary data
         file: fs.readFileSync(req.file.path)
