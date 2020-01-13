@@ -14,7 +14,6 @@ selenium-debug.log
 .env.*.local
 
 # local files
-*.csv
 **/temp/*
 
 # Editor directories and files

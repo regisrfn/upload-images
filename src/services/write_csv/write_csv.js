@@ -19,7 +19,7 @@ function writeTable(table, table_name) {
 }
 
 
-const writeCSV = (data) => {
+const writeCSV = (data, path) => {
     var blocks = data['Blocks']
     var tables = filterByKey(blocks, "BlockType", "TABLE")
     var cells = filterByKey(blocks, "BlockType", "CELL")
@@ -52,7 +52,7 @@ const writeCSV = (data) => {
             }
             table[cell.RowIndex - 1][cell.ColumnIndex - 1] = text
         })
-        writeTable(table, `${__dirname}/tables/table_${index}.csv`)
+        writeTable(table, `${path}table_${index}.csv`)
     })
 }
 
