@@ -3,8 +3,7 @@ const bodyParser = require('body-parser')
 const cors = require('cors')
 const morgan = require('morgan')
 const app = express()
-const fs = require('fs')
-var path = require('path')
+const fs = require('fs-extra')
 var zipdir = require('zip-dir');
 require('dotenv').config()
 
@@ -78,21 +77,20 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
 
     const file_type = req.file.mimetype.split('/').pop()
     const dir = `${__dirname}/temp/`
-    const file = `${dir}/tables_ZIP/table.zip`
-    const path = `${dir}/tables_CSV/`
+    const file_zip = `${dir}/tables_ZIP/table.zip`
+    const path_to_csv = `${dir}/tables_CSV/`
     var document = {
         // read binary data
         file: fs.readFileSync(req.file.path)
     }
 
-    fs.mkdirSync(dir)
-    fs.mkdirSync(path)
-    fs.mkdirSync(`${dir}/tables_ZIP/`)
+    fs.ensureDirSync(`${dir}/tables_ZIP/`)
+    fs.ensureDirSync(path_to_csv)
 
     AWS.analyzeDocument(document)
         .then(result => {
-            tables = write_table.writeCSV(result, path)
-            zipdir(path, { saveTo: file },
+            tables = write_table.writeCSV(result, path_to_csv)
+            zipdir(path_to_csv, { saveTo: file_zip },
                 function (error) {
                     if (error) {
                         console.log(error)
@@ -100,7 +98,8 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
                             status: false,
                         })
                     }
-                    res.status(200).download(file)
+                    return res.status(200).download(file_zip)
+                    
                 })
         })
         .catch(error => {
