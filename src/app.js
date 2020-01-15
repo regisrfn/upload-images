@@ -14,7 +14,7 @@ const cloudinary = require('./cloudinary/config.js')
 const storage = require('./storage/multer.js')
 const AWS = require('./services/AWS/AWS.js')
 const write_table = require('./services/write_csv/write_csv.js')
-
+const pdf = require('./services/pdf_converter/pdf_converter.js')
 
 app.use(morgan('combined'))
 app.use(bodyParser.json({ limit: '100mb' }))
@@ -79,35 +79,49 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
     const dir = `${__dirname}/temp/`
     const file_zip = `${dir}/tables_ZIP/table.zip`
     const path_to_csv = `${dir}/tables_CSV/`
-    var document = {
-        // read binary data
-        file: fs.readFileSync(req.file.path)
-    }
 
-    fs.ensureDirSync(`${dir}/tables_ZIP/`)
-    fs.ensureDirSync(path_to_csv)
-
-    AWS.analyzeDocument(document)
-        .then(result => {
-            tables = write_table.writeCSV(result, path_to_csv)
-            zipdir(path_to_csv, { saveTo: file_zip },
-                function (error) {
-                    if (error) {
-                        console.log(error)
-                        return res.status(500).json({
-                            status: false,
-                        })
-                    }
-                    return res.status(200).download(file_zip)
-                    
+    if (file_type === "pdf") {
+        pdf.convertFile(req.file.path)
+            .then(result => {
+                console.log(result)
+                return res.status(500).json({
+                    file: 'pdf'
                 })
-        })
-        .catch(error => {
-            console.log(error)
-            return res.status(500).json({
-                status: false,
             })
-        })
+            .catch(error => {
+                console.log(error)
+                return res.status(200).json({
+                    file: 'pdf'
+                })
+            })
+    } else if (file_type === 'png' || file_type === 'jpeg') {
+        // read binary data
+        var document = { file: fs.readFileSync(req.file.path) }
+        fs.ensureDirSync(`${dir}/tables_ZIP/`)
+        fs.ensureDirSync(path_to_csv)
+
+        AWS.analyzeDocument(document)
+            .then(result => {
+                tables = write_table.writeCSV(result, path_to_csv)
+                zipdir(path_to_csv, { saveTo: file_zip },
+                    function (error) {
+                        if (error) {
+                            console.log(error)
+                            return res.status(500).json({
+                                status: false,
+                            })
+                        }
+                        return res.status(200).download(file_zip)
+
+                    })
+            })
+            .catch(error => {
+                console.log(error)
+                return res.status(500).json({
+                    status: false,
+                })
+            })
+    }
 
 })
 server.listen(process.env.PORT || 8081, function () {
