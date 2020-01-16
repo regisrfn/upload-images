@@ -83,7 +83,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
 
     const file_type = req.file.mimetype.split('/').pop()
     const dir = `${__dirname}/temp`
-    const file_zip = `${dir}/tables_ZIP/table.zip`
+    const file_zip = `${dir}/tables_ZIP/${Date.now()}.zip`
     const path_to_csv = `${dir}/tables_CSV`
 
     // read binary data
@@ -117,6 +117,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
                             status: false,
                         })
                     }
+                    fs.remove(`${__dirname}/temp`)
                     return res.status(200).download(file_zip)
                 })
             })
