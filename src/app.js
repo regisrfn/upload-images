@@ -155,8 +155,6 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
 
 })
 
-
-
 server.listen(process.env.PORT || 8081, function () {
     console.log('SERVER IS RUNNING');
 })
