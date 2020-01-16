@@ -80,12 +80,38 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
     const file_zip = `${dir}/tables_ZIP/table.zip`
     const path_to_csv = `${dir}/tables_CSV/`
 
+    // read binary data
+    var document = {}
+    fs.ensureDirSync(`${dir}/tables_ZIP/`)
+    fs.ensureDirSync(path_to_csv)
+
     if (file_type === "pdf") {
         pdf.convertFile(req.file.path)
             .then(result => {
-                console.log(result)
-                return res.status(500).json({
-                    file: 'pdf'
+                result.forEach((image, index) => {
+                    document = { file: fs.readFileSync(image) }
+                    console.log(image)
+                    AWS.analyzeDocument(document)
+                        .then(result => {
+                            write_table.writeCSV(result, `${path_to_csv}page${index + 1}_`)
+                        })
+                        .catch(error => {
+                            console.log(error)
+                            return res.status(500).json({
+                                status: false,
+                            })
+                        })
+                })            
+            })
+            .then(() => {
+                zipdir(path_to_csv, { saveTo: file_zip }, (error) => {
+                    if (error) {
+                        console.log(error)
+                        return res.status(500).json({
+                            status: false,
+                        })
+                    }
+                    return res.status(200).download(file_zip)
                 })
             })
             .catch(error => {
@@ -94,12 +120,10 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
                     file: 'pdf'
                 })
             })
-    } else if (file_type === 'png' || file_type === 'jpeg') {
-        // read binary data
-        var document = { file: fs.readFileSync(req.file.path) }
-        fs.ensureDirSync(`${dir}/tables_ZIP/`)
-        fs.ensureDirSync(path_to_csv)
 
+    } else if (file_type === 'png' || file_type === 'jpeg') {
+
+        document = { file: fs.readFileSync(req.file.path) }
         AWS.analyzeDocument(document)
             .then(result => {
                 tables = write_table.writeCSV(result, path_to_csv)
@@ -124,6 +148,9 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
     }
 
 })
+
+
+
 server.listen(process.env.PORT || 8081, function () {
     console.log('SERVER IS RUNNING');
 })
