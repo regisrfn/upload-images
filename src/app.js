@@ -16,6 +16,12 @@ const AWS = require('./services/AWS/AWS.js')
 const write_table = require('./services/write_csv/write_csv.js')
 const pdf = require('./services/pdf_converter/pdf_converter.js')
 
+async function asyncForEach(array, callback) {
+    for (let index = 0; index < array.length; index++) {
+        await callback(array[index], index, array);
+    }
+}
+
 app.use(morgan('combined'))
 app.use(bodyParser.json({ limit: '100mb' }))
 app.use(cors())
@@ -87,11 +93,11 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
 
     if (file_type === "pdf") {
         pdf.convertFile(req.file.path)
-            .then(result => {
-                result.forEach((image, index) => {
+            .then(async images => {
+                await asyncForEach(images, async (image, index) => {
                     document = { file: fs.readFileSync(image) }
                     console.log(image)
-                    AWS.analyzeDocument(document)
+                    await AWS.analyzeDocument(document)
                         .then(result => {
                             write_table.writeCSV(result, `${path_to_csv}/page${index + 1}_`)
                         })
@@ -101,7 +107,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
                                 status: false,
                             })
                         })
-                })            
+                })
             })
             .then(() => {
                 zipdir(path_to_csv, { saveTo: file_zip }, (error) => {
