@@ -76,9 +76,9 @@ app.post('/uptos3', storage.single('image'), function (req, res) {
 app.post('/aws/textract', storage.single('image'), function (req, res) {
 
     const file_type = req.file.mimetype.split('/').pop()
-    const dir = `${__dirname}/temp/`
+    const dir = `${__dirname}/temp`
     const file_zip = `${dir}/tables_ZIP/table.zip`
-    const path_to_csv = `${dir}/tables_CSV/`
+    const path_to_csv = `${dir}/tables_CSV`
 
     // read binary data
     var document = {}
@@ -93,7 +93,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
                     console.log(image)
                     AWS.analyzeDocument(document)
                         .then(result => {
-                            write_table.writeCSV(result, `${path_to_csv}page${index + 1}_`)
+                            write_table.writeCSV(result, `${path_to_csv}/page${index + 1}_`)
                         })
                         .catch(error => {
                             console.log(error)
