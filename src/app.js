@@ -26,7 +26,7 @@ app.use(morgan('combined'))
 app.use(bodyParser.json({ limit: '100mb' }))
 
 
-var whitelist = ['https://handwriting-recogntion.herokuapp.com/','http://localhost:8080']
+var whitelist = ['https://handwriting-recogntion.herokuapp.com','http://localhost:8080']
 var corsOptions = {
   origin: function (origin, callback) {
     if (whitelist.indexOf(origin) !== -1) {
