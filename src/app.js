@@ -26,18 +26,17 @@ app.use(morgan('combined'))
 app.use(bodyParser.json({ limit: '100mb' }))
 
 
-app.use((req, res, next) => {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header(
-        "Access-Control-Allow-Headers",
-        "Origin, X-Requested-With, Content-Type, Accept, Authorization"
-    );
-    if (req.method === 'OPTIONS') {
-        res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
-        return res.status(200).json({});
+var whitelist = ['/\.handwriting-recogntion.herokuapp\.com$/','http://localhost:8080']
+var corsOptions = {
+  origin: function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
     }
-    next();
-});
+  }
+}
+app.use(cors(corsOptions))
 
 app.get('/', function (req, res) {
 
