@@ -80,7 +80,6 @@ app.post('/uptos3', storage.single('image'), function (req, res) {
 })
 
 app.post('/aws/textract', storage.single('image'), function (req, res) {
-
     const file_type = req.file.mimetype.split('/').pop()
     const dir = `${__dirname}/temp`
     const file_zip = `${dir}/tables_ZIP/${Date.now()}.zip`
@@ -104,7 +103,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
                         .catch(error => {
                             console.log(error)
                             return res.status(500).json({
-                                status: false,
+                                error: 'Internal Server Error',
                             })
                         })
                 })
@@ -114,7 +113,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
                     if (error) {
                         console.log(error)
                         return res.status(500).json({
-                            status: false,
+                            error: 'Internal Server Error',
                         })
                     }
                     fs.remove(`${__dirname}/temp`)
@@ -124,7 +123,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
             .catch(error => {
                 console.log(error)
                 return res.status(200).json({
-                    file: 'pdf'
+                    error: 'Internal Server Error',
                 })
             })
 
