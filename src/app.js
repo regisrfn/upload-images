@@ -36,7 +36,7 @@ var corsOptions = {
     }
   }
 }
-app.use(cors(corsOptions))
+app.use(cors())
 
 app.get('/', function (req, res) {
 
@@ -144,7 +144,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
         document = { file: fs.readFileSync(req.file.path) }
         AWS.analyzeDocument(document)
             .then(result => {
-                tables = write_table.writeCSV(result, path_to_csv)
+                tables = write_table.writeCSV(result, `${path_to_csv}/page_`)
                 zipdir(path_to_csv, { saveTo: file_zip },
                     function (error) {
                         if (error) {
@@ -153,6 +153,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
                                 status: false,
                             })
                         }
+                        fs.remove(`${__dirname}/temp`)
                         return res.status(200).download(file_zip)
 
                     })
