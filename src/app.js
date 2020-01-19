@@ -24,18 +24,7 @@ async function asyncForEach(array, callback) {
 
 app.use(morgan('combined'))
 app.use(bodyParser.json({ limit: '100mb' }))
-
-const whitelist = [process.env.CORS_WHITELIST]
-const corsOptions = {
-    origin: function (origin, callback) {
-        if (whitelist.indexOf(origin) !== -1) {
-            callback(null, true)
-        } else {
-            callback(new Error('Not allowed by CORS'))
-        }
-    }
-}
-app.use(cors(corsOptions))
+app.use(cors())
 
 app.get('/', function (req, res) {
 
