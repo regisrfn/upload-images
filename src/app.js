@@ -25,19 +25,21 @@ async function asyncForEach(array, callback) {
 app.use(morgan('combined'))
 app.use(bodyParser.json({ limit: '100mb' }))
 
-
-var whitelist = ['https://handwriting-recogntion.herokuapp.com','http://localhost:8080']
-var corsOptions = {
-  origin: function (origin, callback) {
-    if (whitelist.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
+var corsOptions = {}
+if (process.env.NODE_ENV === 'production') {
+    const whitelist = process.env.HTTP_LIST.split(',')
+    corsOptions = {
+        origin: function (origin, callback) {
+            if (whitelist.indexOf(origin) !== -1) {
+                callback(null, true)
+            } else {
+                callback(new Error('Not allowed by CORS'))
+            }
+        }
     }
-  }
 }
-app.use(cors())
 
+app.use(cors(corsOptions))
 app.get('/', function (req, res) {
 
     return res.status(200).json({
