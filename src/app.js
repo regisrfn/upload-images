@@ -14,7 +14,7 @@ const cloudinary = require('./cloudinary/config.js')
 const storage = require('./storage/multer.js')
 const AWS = require('./services/AWS/AWS.js')
 const write_table = require('./services/write_csv/write_csv.js')
-const pdf = require('./services/pdf_converter/pdf_converter.js')
+const pdf = require('./services/pdf2pic/pdf2pic.js')
 
 async function asyncForEach(array, callback) {
     for (let index = 0; index < array.length; index++) {
@@ -108,7 +108,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
         pdf.convertFile(req.file.path)
             .then(async images => {
                 await asyncForEach(images, async (image, index) => {
-                    document = { file: fs.readFileSync(image) }
+                    document = { file: fs.readFileSync(image.path) }
                     console.log(image)
                     await AWS.analyzeDocument(document)
                         .then(result => {
@@ -137,7 +137,7 @@ app.post('/aws/textract', storage.single('image'), function (req, res) {
             .catch(error => {
                 console.log(error)
                 return res.status(200).json({
-                    error: 'Internal Server Error',
+                    error: 'Format file',
                 })
             })
 
